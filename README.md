@@ -1,11 +1,14 @@
-﻿# Smart Trash Bin
-**Smart Trash Bin is a final project for LBY-IOT A.Y. 2017-2018 Term 2.**
+﻿# CTPRJMN - Smart Trash Bin
+**Smart Trash Bin is the final project for CTPRJMN A.Y. 2017-2018 Term 3.**
 Group Members:
  - Nato, Allendale
  - Ramos, Joshua
- - Soriano Paolo
+ - Sanchez, Mark
+ - Soriano, Paolo
+ - Tirona, Paul
+ - Villamayor, Janz
 
-Professor: Mr. Gregory Cu
+Professor: Mr. Greg Alcera
 
 
 
