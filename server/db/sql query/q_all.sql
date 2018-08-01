@@ -17,15 +17,16 @@ SELECT * FROM sensor_data sa;
     FROM bin b, location l
    WHERE b.location_id = l.location_id;
 
--- All sensor data information: bin name, waste height, temperature, humidity, weight, timestamp
+-- All sensor data information: bin name, waste height, temperature, humidity, weight, data_timestamp
 -- -------------------------------------
   SELECT sd.data_id, b.name AS bin_name, 
          sd.waste_height, sd.temperature, 
-         sd.humidity, sd.weight, sd.timestamp
+         sd.humidity, sd.weight, sd.data_timestamp
     FROM bin b, sensor_data sd
    WHERE b.bin_id = sd.bin_id
-ORDER BY sd.timestamp;
+ORDER BY sd.data_timestamp;
 
 -- Get number of bins
+-- -------------------------------------
   SELECT COUNT(b.bin_id) AS bin_total
     FROM bin b;
