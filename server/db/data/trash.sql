@@ -82,7 +82,7 @@ CREATE TABLE `sensor_data` (
   `temperature` double NOT NULL,
   `humidity` double NOT NULL,
   `weight` double NOT NULL,
-  `timestamp` datetime NOT NULL,
+  `data_timestamp` datetime NOT NULL,
   `bin_id` int(11) NOT NULL,
   PRIMARY KEY (`data_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8;
@@ -106,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-31 19:10:50
+-- Dump completed on 2018-08-02  3:15:19
