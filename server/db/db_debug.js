@@ -6,9 +6,8 @@ const   month   = require('./monthly_query');
 const   year    = require('./yearly_query');
 
 all.getAllBinData();
-all.getAllEmployeeData();
-all.getAllEmployeeActivityData();
 all.getAllSensorData();
+all.getTotalNumberofBins();
 
 week.getAverageTrashCurrentWeek();
 week.getAverageTrashPerWeek();
@@ -16,10 +15,10 @@ week.getTopTenMostTrashCurrentWeek();
 week.getMostTrashPerWeek();
 week.getTopTenMostHumidCurrentWeek();
 week.getMostHumidPerWeek();
+week.getTopTenMostWeightCurrentWeek();
+week.getMostWeightPerWeek();
 week.getTrashPeakDayCurrentWeek();
 week.getTrashPeakDayPerWeek();
-week.getTopTenMostCleaningEmployeeCurrentWeek();
-week.getMostCleaningEmployeePerWeek();
 
 
 Promise.all([
@@ -29,6 +28,8 @@ Promise.all([
     month.getMostTrashPerMonth(),
     month.getTopTenMostHumidCurrentMonth(),
     month.getMostHumidPerMonth(),
+    month.getTopTenMostWeightCurrentMonth(),
+    month.getMostWeightPerMonth(),
     month.getTrashPeakDayCurrentMonth(),
     month.getTrashPeakDayPerMonth()
 ]).then(list => {
