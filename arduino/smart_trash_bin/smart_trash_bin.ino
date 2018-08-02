@@ -8,6 +8,7 @@
 #include <SPI.h>
 
 #include "SoftwareSerial.h"
+#include "HX711.h"
 
 // Timer Object
 SimpleTimer sensorTimer;
@@ -21,18 +22,22 @@ SimpleTimer rfidTimer;
 #define TILT_S2   6
 #define RST_PIN   9
 #define SDA_PIN   10
+#define CLK_PIN   11
+#define DOUT_PIN   12
 
 // CONST VAR 
 #define TRASH_ID      1
 #define TRASH_HEIGHT  30 //Centimeters
 #define DIST_MAX      35
 #define DHT_TYPE      DHT11
+#define calibration_factor  -96650
 
 // Initialize Sensors
 NewPing sonar(TRIG_PIN, ECHO_PIN);
 MFRC522 rfid(SDA_PIN, RST_PIN);
 MFRC522::MIFARE_Key key;
 DHT dht(DHT_PIN, DHT_TYPE);
+HX711 scale(DOUT_PIN, CLK_PIN);
 
 // XBee Serial
 SoftwareSerial XBee(8,7);
@@ -57,6 +62,7 @@ void setup() {
   rfid.PCD_Init();
   sensorTimer.setInterval(2000, sendJSONSensorData);
   rfidTimer.setInterval(2000, sendJSONRfidData);
+  scale.set_scale(calibration_factor);  //Calibration Factor obtained from first sketch
 }
 
 void loop() {
@@ -174,5 +180,10 @@ String printHex(byte *buffer, byte bufferSize) {
     hex += String(buffer[i], HEX);
   }
   return hex;
+}
+
+//Return the weight carried by the load cell in kg
+double getWeight(){
+  return abs(scale.get_units());
 }
 
