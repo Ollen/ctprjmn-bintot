@@ -19,47 +19,12 @@ function getAllBinData() {
     });
 }
 
-function getAllEmployeeData() {
-    return new Promise((resolve, reject) => {
-        conn.query(`
-            SELECT employee_id, first_name, last_name
-            FROM employee
-            ORDER BY 1;
-        `, (err, res, field) => {
-            if(err) {
-                console.log(`Error at getAllEmployeeData: ${err.message}`);
-                reject();
-            }
-            resolve(res);
-        })
-    });
-}
-
-function getAllEmployeeActivityData() {
-    return new Promise((resolve, reject) => {
-        conn.query(`
-            SELECT e.employee_id, e.first_name, e.last_name, 
-            b.name AS cleaned_bin, ea.activity_timestamp 
-            FROM bin b, employee e, employee_activity ea
-            WHERE b.bin_id = ea.bin_id 
-            AND ea.employee_id = e.employee_id
-            ORDER BY ea.activity_timestamp;
-        `, (err, res, field) => {
-            if(err) {
-                console.log(`Error at getAllEmployeeActivityData: ${err.message}`);
-                reject();
-            }
-            resolve(res);
-        })
-    });
-}
-
 function getAllSensorData() {
     return new Promise((resolve, reject) => {
         conn.query(`
             SELECT sd.data_id, b.name AS bin_name, 
             sd.waste_height, sd.temperature, 
-            sd.humidity, sd.is_open AS lid_status, sd.data_timestamp
+            sd.humidity, sd.weight, sd.data_timestamp
             FROM bin b, sensor_data sd
             WHERE b.bin_id = sd.bin_id
             ORDER BY sd.data_timestamp;
@@ -73,18 +38,14 @@ function getAllSensorData() {
     });
 }
 
-function getEmployeeActivityList() {
+function getTotalNumberofBins() {
     return new Promise((resolve, reject) => {
         conn.query(`
-            SELECT e.employee_id, b.bin_id, ea.activity_timestamp
-            FROM bin b, employee e, employee_activity ea
-            WHERE b.bin_id = ea.bin_id 
-            AND ea.employee_id = e.employee_id
-            ORDER BY ea.activity_timestamp;
-
+            SELECT COUNT(b.bin_id) AS bin_total
+            FROM bin b;
         `, (err, res, field) => {
             if(err) {
-                console.log(`Error at getEmployeeActivityList: ${err.message}`);
+                console.log(`Error at getNumberofBins: ${err.message}`);
                 reject();
             }
             resolve(res);
@@ -94,8 +55,6 @@ function getEmployeeActivityList() {
 
 module.exports = {
     getAllBinData,
-    getAllEmployeeData,
-    getAllEmployeeActivityData,
     getAllSensorData,
-    getEmployeeActivityList
+    getTotalNumberofBins
 }

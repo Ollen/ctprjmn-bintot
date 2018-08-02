@@ -16,7 +16,7 @@ function sensorData(data) {
         waste_height: data.trashHeight,
         temperature: data.temperature,
         humidity: data.humidity,   
-        is_open: data.tiltPos,
+        weight: data.weight,
         data_timestamp: moment().format('YYYY:MM:DD HH:mm:ss')
     }, (err, res, fields) => {
         if (err) {
@@ -28,22 +28,6 @@ function sensorData(data) {
     })
 }
 
-function empActivity(data) {
-    conn.query('INSERT INTO employee_activity SET ?' ,{
-        bin_id: data.trashID,
-        employee_id: data.employee_id,
-        activity_timestamp: moment().format('YYYY:MM:DD HH:mm:ss')
-    }, (err, res, fields) => {
-        if (err) {
-            console.log(`Error inserting activity data: ${err.message}`);
-            return;
-        }
-
-        console.log(`Inserted new activity data`);
-    })
-}
-
 module.exports = {
-    sensorData,
-    empActivity
+    sensorData
 }

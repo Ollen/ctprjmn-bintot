@@ -3,8 +3,6 @@
 USE trash;
 
 SELECT * FROM bin b;
-SELECT * FROM employee e;
-SELECT * FROM employee_activity ea;
 SELECT * FROM location l;
 SELECT * FROM sensor_data sa;
 
@@ -90,6 +88,38 @@ ORDER BY humidity DESC
 GROUP BY week
 ORDER BY week;
 
+-- trash that has the top 10 most weight of the week
+-- --------------------------------------------------------------------------
+  SELECT dt.bin_id, dt.name AS bin_name, dt_weight AS weight
+    FROM (
+		   SELECT b.bin_id, b.name, max(sd.weight) AS dt_weight
+             FROM bin b, sensor_data sd
+            WHERE b.bin_id = sd.bin_id
+              AND week(sd.data_timestamp, 2) = week(CURRENT_TIMESTAMP, 2)
+              AND sd.weight != 0
+		 GROUP BY day(sd.data_timestamp)
+         ) AS dt
+ORDER BY weight DESC
+   LIMIT 10;
+
+-- trash that has the most weight per week
+-- --------------------------------------------------------------------------
+  SELECT dt.bin_id, dt.name AS bin_name, dt_weight AS weight, 
+         week, month, month_name, year
+    FROM (
+           SELECT b.bin_id, b.name, max(sd.weight) AS dt_weight, 
+                  week(sd.data_timestamp, 2) AS week, month(sd.data_timestamp) 
+                  AS month, monthname(sd.data_timestamp) AS month_name, 
+                  year(sd.data_timestamp) AS year
+			 FROM bin b, sensor_data sd
+            WHERE b.bin_id = sd.bin_id
+              AND month(sd.data_timestamp) = month(CURRENT_TIMESTAMP)
+              AND sd.weight != 0
+		 GROUP BY day(sd.data_timestamp)
+         ) AS dt
+GROUP BY week
+ORDER BY week;
+
 -- peak day that reached trash threshold of the week
 -- --------------------------------------------------------------------------
   SELECT day(sd.data_timestamp) AS day, 
@@ -107,37 +137,3 @@ ORDER BY week;
      AND sd.waste_height > (b.height * 0.75)
 GROUP BY week
 ORDER BY week;
-
--- top 10 employees that has the most cleaning performed on the week
--- --------------------------------------------------------------------------
-  SELECT e.employee_id, e.first_name, e.last_name, 
-	     count(ea.activity_timestamp) AS times_cleaned
-    FROM employee e, employee_activity ea
-   WHERE week(ea.activity_timestamp) = week(CURRENT_TIMESTAMP)
-	 AND e.employee_id = ea.employee_id
-GROUP BY ea.employee_id
-ORDER BY times_cleaned DESC
-   LIMIT 10;
-   
--- employee that has the most cleaning performed per week
--- --------------------------------------------------------------------------
-  SELECT dt.employee_id, dt.first_name, dt.last_name, 
-	     max(clean_count) AS times_cleaned, week
-    FROM (
-	       SELECT count(ea.activity_timestamp) AS clean_count, e.employee_id,
-				  e.first_name AS first_name, e.last_name AS last_name,
-                  week(ea.activity_timestamp, 2) AS week
-             FROM employee e, employee_activity ea
-			WHERE month(ea.activity_timestamp) = month(CURRENT_TIMESTAMP)
-              AND e.employee_id = ea.employee_id
-		 GROUP BY ea.employee_id
-         ) AS dt
-GROUP BY week
-ORDER BY week;
-
--- top 10 employees that has the least cleaning performed in the current week
--- --------------------------------------------------------------------------
-   
--- employees that has the least cleaning performed per week
--- --------------------------------------------------------------------------
-
