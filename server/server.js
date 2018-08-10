@@ -29,7 +29,7 @@ hbs.registerHelper('json', context => {
     return JSON.stringify(context);
 });
 
-app.use('/scripts', express.static(__dirname + '/bower_components'));
+app.use('/scripts', express.static(__dirname + '/../node_modules'));
 app.use('/dashboard', express.static(__dirname + '/views'));
 
 app.use('/smart-trash/bin', bin_route);
@@ -41,6 +41,6 @@ app.get('/smart-trash', (req, res) => {
 
 server.listen(port, () => {
     console.log(`Server started on port ${port}`);
-    mqtt.manageMQTTData('mqtt://192.168.1.3', 'smart-trash', realTimeSocket);
+    mqtt.manageMQTTData('mqtt://10.145.217.172', 'smart-trash', realTimeSocket);
     
 });

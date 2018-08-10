@@ -60,14 +60,16 @@ void setup() {
   dht.begin();
   SPI.begin();
   rfid.PCD_Init();
-  sensorTimer.setInterval(2000, sendJSONSensorData);
-  rfidTimer.setInterval(2000, sendJSONRfidData);
   scale.set_scale(calibration_factor);  //Calibration Factor obtained from first sketch
+  scale.tare();
+  sensorTimer.setInterval(2000, sendJSONSensorData);
+  //rfidTimer.setInterval(2000, sendJSONRfidData);
+  
 }
 
 void loop() {
   sensorTimer.run();
-  rfidTimer.run();
+  //rfidTimer.run();
 }
 
 /**
@@ -85,11 +87,12 @@ void sendJSONSensorData() {
   root["dataType"] = "sensor";
   root["trashID"] = TRASH_ID;
   root["trashHeight"] = TRASH_HEIGHT;
-  root["sonarDistance"] = sonarDistance;
+  
   // Calculate Waste Percentage
   if (sonarDistance > 30) {
     sonarDistance = 30;
   }
+  root["sonarDistance"] = sonarDistance;
   root["wastePercent"] = (1 - (sonarDistance / TRASH_HEIGHT)) * 100;
   
   root["temperature"] = t;
@@ -97,6 +100,7 @@ void sendJSONSensorData() {
   root["tiltPos"] = tiltPos;
   root.printTo(Serial);
   Serial.println();
+  Serial.print("Weight: "); Serial.println(getWeight());
   root.printTo(XBee);
   XBee.println();
 }
