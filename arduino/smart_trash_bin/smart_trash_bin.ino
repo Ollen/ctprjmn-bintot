@@ -2,10 +2,9 @@
 
 #include <SimpleTimer.h>
 #include <ArduinoJson.h>
-#include <MFRC522.h>
 #include <NewPing.h>
 #include <DHT.h>
-#include <SPI.h>
+#include <math.h>
 
 #include "SoftwareSerial.h"
 #include "HX711.h"
@@ -30,12 +29,9 @@ SimpleTimer rfidTimer;
 #define TRASH_HEIGHT  30 //Centimeters
 #define DIST_MAX      35
 #define DHT_TYPE      DHT11
-#define calibration_factor  -96650
 
 // Initialize Sensors
 NewPing sonar(TRIG_PIN, ECHO_PIN);
-MFRC522 rfid(SDA_PIN, RST_PIN);
-MFRC522::MIFARE_Key key;
 DHT dht(DHT_PIN, DHT_TYPE);
 HX711 scale(DOUT_PIN, CLK_PIN);
 
@@ -58,12 +54,13 @@ void setup() {
   pinMode(TILT_S1, INPUT);
   pinMode(TILT_S2, INPUT);
   dht.begin();
-  SPI.begin();
-  rfid.PCD_Init();
+  
+  float calibration_factor = 95000;
   scale.set_scale(calibration_factor);  //Calibration Factor obtained from first sketch
-  scale.tare();
+  scale.tare(); //Reset scale to 0
+
+  Serial.println("Starting sensor timer");
   sensorTimer.setInterval(2000, sendJSONSensorData);
-  //rfidTimer.setInterval(2000, sendJSONRfidData);
   
 }
 
@@ -76,9 +73,11 @@ void loop() {
  * Sends JSON Sensor Data via XBee serial
  */
 void sendJSONSensorData() {
+  
   float sonarDistance = getSonarDistance();
   float t = dht.readTemperature();
   float h = dht.readHumidity();
+  double w = getWeight();
   int tiltPos = getTiltPos();
   
   // Convert to JSON
@@ -87,6 +86,7 @@ void sendJSONSensorData() {
   root["dataType"] = "sensor";
   root["trashID"] = TRASH_ID;
   root["trashHeight"] = TRASH_HEIGHT;
+  root["trashWeight"] = w;
   
   // Calculate Waste Percentage
   if (sonarDistance > 30) {
@@ -100,29 +100,12 @@ void sendJSONSensorData() {
   root["tiltPos"] = tiltPos;
   root.printTo(Serial);
   Serial.println();
-  Serial.print("Weight: "); Serial.println(getWeight());
+  
+  
   root.printTo(XBee);
   XBee.println();
 }
 
-/**
- * Sends JSON RFID Data via XBee Serial
- */
-void sendJSONRfidData() {
-  // Convert to JSON
-
-  if (readCard()) {
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
-    root["dataType"] = "activity";
-    root["trashID"] = TRASH_ID;
-    root["employee_id"] = printHex(nuidPICC, rfid.uid.size);;
-    root.printTo(Serial);
-    Serial.println();
-    root.printTo(XBee);
-    XBee.println();   
-  }
-}
 
 /**
  * Fetch the Sonar Distance
@@ -142,52 +125,9 @@ int getTiltPos(){
   return (S1 << 1) | S2; //BITWISE MATH
 }
 
-/**
- * Read RFID Card
- */
-bool readCard() {
-  // Look for new cards
-  if ( ! rfid.PICC_IsNewCardPresent())
-    return false;
-
-  // Verify if the NUID has been readed
-  if ( ! rfid.PICC_ReadCardSerial()) {
-    Serial.println("[ERROR]: Failed verify NUID of card.");
-    return false;
-  }
-
-
-  MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-  // Check is the PICC of Classic MIFARE type
-  if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&
-      piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
-      piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
-    Serial.println(F("[ERROR]: Tag is not of type MIFARE Classic."));
-    return false;
-  }
-
-  // Store NUID into nuidPICC array
-  for (byte i = 0; i < 4; i++) {
-    nuidPICC[i] = rfid.uid.uidByte[i];
-  }
-
-  return true;
-}
-
-/**
-   Helper routine to dump a byte array as hex values to Serial.
-*/
-String printHex(byte *buffer, byte bufferSize) {
-  String hex = "";
-  for (byte i = 0; i < bufferSize; i++) {
-    hex += buffer[i] < 0x10 ? "0" : "";
-    hex += String(buffer[i], HEX);
-  }
-  return hex;
-}
 
 //Return the weight carried by the load cell in kg
 double getWeight(){
-  return abs(scale.get_units());
+  return fabs(scale.get_units());
 }
 
