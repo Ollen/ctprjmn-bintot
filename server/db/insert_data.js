@@ -16,7 +16,7 @@ function sensorData(data) {
         waste_height: data.trashHeight,
         temperature: data.temperature,
         humidity: data.humidity,   
-        weight: data.weight,
+        weight: data.trashWeight,
         data_timestamp: moment().format('YYYY:MM:DD HH:mm:ss')
     }, (err, res, fields) => {
         if (err) {

@@ -39,3 +39,18 @@ let humidChart = new Chart($('#humidChart'), {
     options: {
     }
 });
+
+let weightChart = new Chart($('#weightChart'), {
+    type: 'doughnut',
+    data: {
+        datasets: [{
+            label: 'Grams (Weight)',
+            data: [0, 40],
+            backgroundColor:['rgba(245, 186, 97, 0.2)'],
+            borderColor:['rgba(245, 186, 97', 'rgba(245, 186, 97)']
+        }],
+        labels: ['Weight']
+    },
+    options: {
+    }
+});
